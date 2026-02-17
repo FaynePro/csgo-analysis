@@ -357,9 +357,6 @@ class TacticClassifierTrainer:
         print(f"Loaded checkpoint from {checkpoint_path}")
 
 
-
-
-
 # def predict_on_raw_data(
 #     model: nn.Module,
 #     feature_scaler,

@@ -1,26 +1,14 @@
-import os
 import numpy as np
 import torch
-import torch.nn as nn
-import json
-import pandas as pd
-import seaborn as sns
 
 from collections import Counter
-from typing import Dict, Tuple, Optional, List
-from ml.tactic_classifier.classifier_trainer.feedforward_tactic_classifier import FeedforwardTacticClassifier
-from ml.tactic_classifier.classifier_trainer.tactic_feature_dataset import TacticFeatureDataset
+from typing import Tuple, List
 from sklearn.utils.class_weight import compute_class_weight
-from torch.optim.lr_scheduler import ReduceLROnPlateau
-from torch.utils.data import DataLoader, random_split
-from torchmetrics import Accuracy, F1Score, Precision, Recall
-from sklearn.metrics import confusion_matrix, classification_report, f1_score
+from torch.utils.data import random_split
 from torch.utils.data import Subset, random_split
 from sklearn.model_selection import train_test_split
-import matplotlib.pyplot as plt
 from pathlib import Path
 from datetime import datetime
-from sklearn.model_selection import KFold
 
 def create_output_directory(output_dir: str) -> Path:
     """
