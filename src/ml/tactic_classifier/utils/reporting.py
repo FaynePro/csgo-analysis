@@ -137,8 +137,8 @@ def document_fold_results(val_metrics, train_subset, val_subset, fold, fold_resu
             'fold': fold,
             'train_size': len(train_subset),
             'val_size': len(val_subset),
-            'best_val_loss': fold_results[-1]['best_val_loss'],
-            'best_val_acc': fold_results[-1]['best_val_acc'],
+            'best_val_loss': fold_results['best_val_loss'],
+            'best_val_acc': fold_results['best_val_acc'],
             'overall_accuracy': val_metrics['overall_accuracy'],
             'macro_f1': val_metrics['macro_f1'],
             'weighted_f1': val_metrics['weighted_f1']
@@ -149,8 +149,8 @@ def document_fold_results(val_metrics, train_subset, val_subset, fold, fold_resu
         
         
         print(f"\nFold {fold} Results:")
-        print(f"Best Val Loss: {fold_results[-1]['best_val_loss']:.4f}")
-        print(f"Best Val Acc: {fold_results[-1]['best_val_acc']:.4f}")
+        print(f"Best Val Loss: {fold_results['best_val_loss']:.4f}")
+        print(f"Best Val Acc: {fold_results['best_val_acc']:.4f}")
         print(f"Macro F1: {val_metrics['macro_f1']:.4f}")
         print(f"Weighted F1: {val_metrics['weighted_f1']:.4f}")
 

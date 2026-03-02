@@ -9,6 +9,7 @@ from torch.utils.data import Subset, random_split
 from sklearn.model_selection import train_test_split
 from pathlib import Path
 from datetime import datetime
+from utils.project_root import find_project_root
 
 def create_output_directory(output_dir: str) -> Path:
     """
@@ -20,7 +21,8 @@ def create_output_directory(output_dir: str) -> Path:
     Returns:
         Path: Path object pointing to the created run directory.
     """
-    output_path = Path(output_dir)
+    project_root = find_project_root()
+    output_path = project_root / Path(output_dir)
     timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
     run_dir = output_path / f"kfold_run_{timestamp}"
     run_dir.mkdir(parents=True, exist_ok=True)

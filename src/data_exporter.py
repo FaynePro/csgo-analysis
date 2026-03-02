@@ -14,7 +14,7 @@ from pathlib import Path
 from typing import Any, Optional
 import logging
 
-from data_preprocessor import KEYS_PLAYER_LEVEL, KEYS_ROUND_LEVEL, KEYS_FRAME_LEVEL
+from preprocessing.functions.data_preprocessor import KEYS_PLAYER_LEVEL, KEYS_ROUND_LEVEL, KEYS_FRAME_LEVEL
 
 
 def flatten_preprocessed_frame(frame: dict[str, Any]) -> dict[str, Any]:

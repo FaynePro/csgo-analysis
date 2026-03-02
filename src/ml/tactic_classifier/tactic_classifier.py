@@ -1,5 +1,5 @@
-from ml.tactic_classifier.classifier_trainer.single_split_trainer import train_classifier
-from ml.tactic_classifier.classifier_trainer.kfold_trainer import train_classifier_kfold
+from ml.tactic_classifier.classifier_trainer.single_split_trainer import SingleSplitTrainer
+from ml.tactic_classifier.classifier_trainer.kfold_trainer import KfoldTrainer
 import argparse
 
 # TODO: Retrieve file paths from environment variables instead of hardcoding
@@ -18,7 +18,7 @@ def parse_args():
     )
 
     parser.add_argument(
-        "--graph-root-dir",
+        "--data-root-dir",
         type=str,
         default="data/preprocessed/de_dust2",
         help="Path to preprocessed data directory"
@@ -46,16 +46,18 @@ if __name__ == "__main__":
 
     if args.kfold:
         print("Running K-Fold training...")
-        model, dataset, fold_results, summary, test_metrics = train_classifier_kfold(
+        trainer = KfoldTrainer()
+        model, dataset, fold_results, summary, test_metrics = trainer.train_classifier_kfold(
             data_root_dir=args.data_root_dir,
             tactics_json_path=args.tactics_json_path,
             num_epochs=50,
-            k_folds=5,
+            k_folds=10,
             output_dir=args.output_dir
         )
     else:
         print("Running single split training...")
-        model, dataset, history = train_classifier(
+        trainer = SingleSplitTrainer()
+        model, dataset, history = trainer.train_classifier(
             data_root_dir=args.data_root_dir,
             tactics_json_path=args.tactics_json_path,
             num_epochs=50,

@@ -4,6 +4,7 @@ import json
 
 from ml.tactic_classifier.classifier_trainer.feedforward_tactic_classifier import FeedforwardTacticClassifier
 from ml.tactic_classifier.classifier_trainer.tactic_feature_dataset import TacticFeatureDataset
+from ml.tactic_classifier.classifier_trainer.tactic_classifier_trainer import TacticClassifierTrainer
 from sklearn.model_selection import KFold
 from torch.utils.data import DataLoader
 from ml.tactic_classifier.utils.data_utils import create_output_directory, get_dataset_labels, get_class_weight_tensor, split_train_test, get_model_dimensions
@@ -44,9 +45,10 @@ def export_kfold_summary_to_csv(k_folds, num_epochs, batch_size,
 
     return summary
 
-class TacticClassifierTrainer:
+class KfoldTrainer:
 
     def train_classifier_kfold(
+        self,
         data_root_dir: str = "",
         tactics_json_path: str = "",
         num_epochs: int = 50,
@@ -84,7 +86,7 @@ class TacticClassifierTrainer:
         )
 
         labels, label_counts = get_dataset_labels(dataset)
-        class_weights_tensor = get_class_weight_tensor(dataset)
+        class_weights_tensor = get_class_weight_tensor(labels)
         train_val_set, test_set = split_train_test(dataset,test_split,use_stratified_split)
         
         test_loader = DataLoader(
@@ -172,7 +174,7 @@ class TacticClassifierTrainer:
         print("\nPer-Class Average Metrics Across Folds:")
         class_names = fold_results[0]['val_metrics']['class_names']
         
-        aggregate_fold_metrics(class_names, run_dir)
+        aggregate_fold_metrics(class_names, fold_results, run_dir)
         
         # Export all fold metrics combined
         all_fold_metrics_flat = [item for sublist in all_fold_metrics for item in sublist]

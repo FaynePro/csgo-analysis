@@ -7,6 +7,7 @@ from pyparsing import Path
 import torch
 from sklearn.preprocessing import StandardScaler
 from torch.utils.data import Dataset
+from utils.project_root import find_project_root
 
 class TacticFeatureDataset(Dataset):
     def __init__(
@@ -26,14 +27,15 @@ class TacticFeatureDataset(Dataset):
             tactics_json_path: Path to JSON file containing tactic definitions
         """
         super().__init__()
-        self.data_root_dir = data_root_dir
+        project_root = find_project_root()
+        self.data_root_dir = project_root / data_root_dir
         self.all_data = []
         
         self.all_data = self._load_data_from_directory()
         
         # If returning empty dataset, raise error
         if len(self.all_data) == 0:
-            raise ValueError(f"No valid data found in {data_root_dir}")
+            raise ValueError(f"No valid data found in {self.data_root_dir}")
         
         # Extract and normalize features
         self.all_features = self._collect_all_features()
@@ -51,8 +53,9 @@ class TacticFeatureDataset(Dataset):
         if label_to_id is not None:
             self.label_to_id = label_to_id
         else:
+            tactics_full_root = project_root / tactics_json_path
             # Load tactic definitions from JSON and create label mapping
-            with open(tactics_json_path) as f:
+            with open(tactics_full_root) as f:
                 tactics = json.load(f)
             strategies = [item["id"] for item in tactics]
             self.label_to_id = {label: idx for idx, label in enumerate(strategies)}

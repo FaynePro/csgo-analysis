@@ -5,10 +5,11 @@ from ml.tactic_classifier.classifier_trainer.tactic_feature_dataset import Tacti
 from torch.utils.data import DataLoader, random_split
 from torch.utils.data import random_split
 from ml.tactic_classifier.utils.data_utils import get_dataset_labels, get_class_weight_tensor, get_model_dimensions
-from tactic_classifier_trainer import TacticClassifierTrainer
+from ml.tactic_classifier.classifier_trainer.tactic_classifier_trainer import TacticClassifierTrainer
 
 class SingleSplitTrainer:
     def train_classifier(
+        self,
         data_root_dir: str = "",
         tactics_json_path: str = "",
         num_epochs: int = 50,
