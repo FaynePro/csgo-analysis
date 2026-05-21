@@ -78,7 +78,7 @@ def load_module(path: Path):
 
 
 
-def execute_module(module_path: Path):
+def execute_module(module_path: Path, splitter_output=None):
     # Small note, this will run the run() function if there is one
     text = module_path.read_text(encoding="utf-8", errors="ignore").lower()
 
@@ -98,8 +98,11 @@ def execute_module(module_path: Path):
         module = load_module(module_path)
 
         if hasattr(module, "run"):
-            result = module.run()
-            return 0, str(result)
+            if splitter_output is not None:
+                result = module.run(splitter_output)
+            else:
+                result = module.run()
+            return 0, result
 
         for attr_name in dir(module):
             attr = getattr(module, attr_name)
@@ -107,8 +110,11 @@ def execute_module(module_path: Path):
             if isinstance(attr, type):
                 if hasattr(attr, "run"):
                     instance = attr()
-                    result = instance.run()
-                    return 0, str(result)
+                    if splitter_output is not None:
+                        result = instance.run(splitter_output)
+                    else:
+                        result = instance.run()
+                    return 0, result
 
         return 1, "No runnable module found"
 
@@ -127,45 +133,15 @@ def save_log(name, output):
 
     return path
 
-
-
 def extract_metrics(model_name, output):
+    print("HERE: ",output)
     metrics = {
         "model": model_name,
-        "accuracy": None,
-        "f1": None,
-        "precision": None,
-        "recall": None,
+        "accuracy": output.get("accuracy", None),
+        "f1_score": output.get("f1_score", None),
+        "precision": output.get("precision", None),
+        "recall": output.get("recall", None),
     }
-
-    lines = output.splitlines()
-
-    for line in lines:
-        lower = line.lower()
-
-        if "accuracy" in lower:
-            try:
-                metrics["accuracy"] = float(line.split()[-1])
-            except:
-                pass
-
-        if "f1" in lower:
-            try:
-                metrics["f1"] = float(line.split()[-1])
-            except:
-                pass
-
-        if "precision" in lower:
-            try:
-                metrics["precision"] = float(line.split()[-1])
-            except:
-                pass
-
-        if "recall" in lower:
-            try:
-                metrics["recall"] = float(line.split()[-1])
-            except:
-                pass
 
     return metrics
 
@@ -330,35 +306,35 @@ class PipelineDashboard:
 
             path = PARSER_DIR / f"{parser_name}.py"
 
-            code, output = execute_module(path)
+            code, parser_output = execute_module(path)
 
-            save_log(parser_name, output)
+            save_log(parser_name, str(parser_output))
 
-            self.log(output)
+            self.log("Finished parsing step...")
 
             current_step += 1
             self.progress["value"] = (current_step / total_steps) * 100
             self.root.update()
 
             if code != 0:
-                messagebox.showerror("Parser Error", output)
+                messagebox.showerror("Parser Error", parser_output)
 
         self.log("--- RUNNING SPLITTER STEP ---")
 
         splitter_path = SPLITTER_DIR / f"{selected_splitter}.py"
 
-        code, output = execute_module(splitter_path)
+        code, split_output = execute_module(splitter_path)
 
-        save_log(selected_splitter, output)
+        save_log(selected_splitter, str(split_output))
 
-        self.log(output)
+        self.log("Finished splitting step...")
 
         current_step += 1
         self.progress["value"] = (current_step / total_steps) * 100
         self.root.update()
 
         if code != 0:
-            messagebox.showerror("Splitter Error", output)
+            messagebox.showerror("Splitter Error", split_output)
 
         self.log("--- RUNNING MODELS STEP ---")
 
@@ -370,30 +346,31 @@ class PipelineDashboard:
 
             start = time.time()
 
-            code, output = execute_module(model_path)
+            code, model_output = execute_module(model_path, split_output)
+            print("Model Output:", model_output)
 
             duration = time.time() - start
 
-            save_log(model_name, output)
+            save_log(model_name, str(model_output))
 
             self.model_results[model_name] = {
-                "output": output,
+                "output": model_output,
                 "runtime_seconds": duration,
             }
 
-            metrics = extract_metrics(model_name, output)
+            metrics = extract_metrics(model_name, model_output)
             metrics["runtime_seconds"] = duration
 
             self.metrics_list.append(metrics)
 
-            self.log(output)
+            self.log("Finished running model(s)...")
 
             current_step += 1
             self.progress["value"] = (current_step / total_steps) * 100
             self.root.update()
 
             if code != 0:
-                messagebox.showerror("Model Error", output)
+                messagebox.showerror("Model Error", model_output)
 
         self.update_table()
 

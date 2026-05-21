@@ -1,4 +1,2 @@
-model,accuracy,f1,precision,recall,runtime_seconds
-graph_neural_network,,,,,0.0010066032409667969
-neural_network,,,,,0.0009222030639648438
-random_forest,,,,,0.0010824203491210938
+model,accuracy,f1_score,precision,recall,runtime_seconds
+neural_network,1.0,1.0,1.0,1.0,2.378791332244873
